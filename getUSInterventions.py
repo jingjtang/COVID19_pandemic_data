@@ -13,13 +13,13 @@ from bs4 import BeautifulSoup
 
 def getClosureTimeofUniversitiesandColleges(outputpath = None):
 
-    url = "https://coronavirus.1point3acres.com/_next/static/chunks/254a1764fdea81c1edb65c74503a3d7acf656504.ffc6e960ae850f135142.js"
+    url = "https://coronavirus.1point3acres.com/_next/static/chunks/e53538f4a6331cce5409b69446448c719a696032.888606a2f00cf42865ea.js"
 
     header = {'User-Agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36"}
     resp = requests.get(url, headers = header)
     schools = str(BeautifulSoup(resp.content, 'html.parser').contents[0]).split('[')[4].split(']')[-3][1:-1].split('},{')
 
-    columnnames = list(json.loads('{' + schools[0] + '}').keys())
+    columnnames = list(json.loads('{' + schools[3] + '}').keys())
     df = pd.DataFrame(columns = columnnames, index = range(len(schools)))
     for i in range(len(schools)):
         content = schools[i].split('","')
@@ -30,7 +30,7 @@ def getClosureTimeofUniversitiesandColleges(outputpath = None):
             key, value = ele.split('":"')
             df.loc[i][key] = value
     if outputpath == None:
-        df.to_csv('US_Universities_closure_date.csv', sep = ',', index = False)
+        df.to_csv('US_universities_closure_dates.csv', sep = ',', index = False)
     else:
         df.to_csv(outputpath, sep = ',', index = False)
     return df
