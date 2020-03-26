@@ -43,9 +43,9 @@ def getInterventionsfromWiki(outputpath = None):
     table = soup.select('table')[1]
     df = pd.read_html(table.prettify())[0]
     multiindex = np.array(df.keys())
-    df = df.drop([multiindex[1], multiindex[-1]], axis = 1)
+    df = df.drop([multiindex[1], multiindex[-2], multiindex[-1]], axis = 1)
     columns = [multiindex[0][0], multiindex[2][0], multiindex[3][0], multiindex[4][0]] + \
-        [multiindex[i][0] + '-' + multiindex[i][1] for i in range(5, multiindex.shape[0]-1)]
+        [multiindex[i][0] + '-' + multiindex[i][1] for i in range(5, multiindex.shape[0]-2)]
     df.columns = columns
     if outputpath == None:
         df.to_csv('US_interventions.csv', sep = ',', index = False)
