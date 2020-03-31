@@ -31,7 +31,7 @@ def getClosureTimeofUniversitiesandColleges(outputpath = None):
             key, value = ele.split('":"')
             df.loc[i][key] = value
     if outputpath == None:
-        df.to_csv('US_universities_closure_dates.csv', sep = ',', index = False)
+        df.to_csv('../data/US_universities_closure_dates.csv', sep = ',', index = False)
     else:
         df.to_csv(outputpath, sep = ',', index = False)
     return df
@@ -49,7 +49,7 @@ def getUSInterventionsfromWiki(outputpath = None):
         [multiindex[i][0] + '-' + multiindex[i][1] for i in range(5, multiindex.shape[0]-2)]
     df.columns = columns
     if outputpath == None:
-        df.to_csv('US_interventions.csv', sep = ',', index = False)
+        df.to_csv('../data/US_interventions.csv', sep = ',', index = False)
     else:
         df.to_csv(outputpath, sep = ',', index = False)
     return df
@@ -60,14 +60,14 @@ def getWorldCovid19fromWorldometer():
     get covid19 case data from worldometer
     Haven't found time series 
     """  
-    os.mkdir('Data_from_Worldometer')
+    os.mkdir('../data/Data_from_Worldometer')
     url = "https://www.worldometers.info/coronavirus/#countries"
     header = {'User-Agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36"}
     resp = requests.get(url, headers = header)
     soup = BeautifulSoup(resp.content, 'html.parser')
     table = soup.select('table')[0]
     df = pd.read_html(table.prettify())[0]
-    df.to_csv('Data_from_Worldometer/Covid19data_from_worldometer_worldwide.csv', sep = ',', index = False)
+    df.to_csv('../data/Data_from_Worldometer/Covid19data_from_worldometer_worldwide.csv', sep = ',', index = False)
     
     return df
 
@@ -82,8 +82,34 @@ def getItalyCovid19fromWiki():
     df = pd.read_html(table.prettify().replace(';', ''))[0]
     colnames = [x[0] + x[1] if x[0] != x[1] else x[0] for x in df.keys()]
     df.columns = colnames
-    df.to_csv('Italy_covid19_confirmedcases_byregion.csv', sep = ',', index = False)
+    df.iloc[:-1, :].to_csv('../data/Italy_covid19_confirmedcases_byregion.csv', sep = ',', index = False)
     
+    # Daily COVID-19 cases in Italy by region
+    table = soup.select('table')[9]
+    df = pd.read_html(table.prettify().replace(';', ''))[0]
+    colnames = [x[0] + '_' + x[1] if x[0] != x[1] else x[0] for x in df.keys()]
+    df.columns = colnames
+    df.iloc[:-2, :].to_csv('../data/Italy_covid19_daily_confirmedcases_byregion.csv', sep = ',', index = False)
+    
+    #Confirmed COVID-19 cases in Italy by gender and age
+    # table = soup.select('table')[11]
+    # df = pd.read_html(table.prettify().replace(';', ''))[0]
+    # colnames = [x[0] + '_' + x[1] if x[0] != x[1] else x[0] for x in df.keys()]
+    # df.columns = colnames
+    # df.iloc[:-2, :].to_csv('../data/Italy_covid19_daily_confirmedcases_byregion.csv', sep = ',', index = False)
+    
+def getGermanyCovid19fromWiki():
+    url = "https://en.wikipedia.org/wiki/2020_coronavirus_pandemic_in_Germany"
+    header = {'User-Agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36"}
+    resp = requests.get(url, headers = header)
+    soup = BeautifulSoup(resp.content, 'html.parser')
+    
+    #Confirmed cumulative infections (deaths in brackets) according to data from the Robert Koch Institute
+    table = soup.select('table')[3]
+    df = pd.read_html(table.prettify().replace(';', ''))[0]
+    colnames = [x[0] + '_'+ x[1] if x[0] != x[1] else x[0] for x in df.keys()]
+    df.columns = colnames
+    df.iloc[:-1, :].to_csv('../data/Germany_covid19_confirmedcases_bystate.csv', sep = ',', index = False)
 
 
 if __name__ == '__main__':
